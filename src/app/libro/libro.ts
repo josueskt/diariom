@@ -3,6 +3,7 @@ import { Cuenta, ResumenCuenta, Transaccion } from '../interface/tansaction.inte
 import { Libros } from './libros';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ExportarExcelService } from '../services/exportar-excel';
 
 @Component({
   selector: 'app-libro',
@@ -23,7 +24,7 @@ export class Libro {
     nombre: ''
   };
 
-  constructor(private transaccionService: Libros) { }
+  constructor(private transaccionService: Libros ,  private exportarExcelService: ExportarExcelService) { }
 
   ngOnInit(): void {
     this.cargarDatos();
@@ -37,6 +38,10 @@ export class Libro {
     cuentas: this.cuentas
   });
   }
+  exportarAExcel(): void {
+  const nombreArchivo = `LibroMayor_${new Date().toISOString().split('T')[0]}`;
+  this.exportarExcelService.exportarAExcel(this.resumenes, nombreArchivo);
+}
 
   crearCuenta(): void {
     if (!this.nuevaCuenta.nombre) return;
