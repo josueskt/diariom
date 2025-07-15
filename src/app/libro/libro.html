@@ -1,0 +1,141 @@
+  <h2 class="mb-4">Libro Mayor Contable</h2>
+
+<div class="container">
+<div>
+ <div class="card mb-4">
+    <div class="card-header">Administrar Cuentas</div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-8">
+          <input type="text" class="form-control" placeholder="Nombre de nueva cuenta" 
+                 [(ngModel)]="nuevaCuenta.nombre">
+        </div>
+        <div class="col-md-4">
+          <button class="btn btn-success w-100" (click)="crearCuenta()">Crear Cuenta</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<div>
+ <div class="card mb-4">
+    <div class="card-header">Registrar Transacción</div>
+    <div class="card-body">
+      <form (submit)="agregarTransaccion()">
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <label class="form-label">Cuenta</label>
+            <select class="form-select" [(ngModel)]="nuevaTransaccion.cuentaId" name="cuentaId" required>
+              <option value="0">Seleccione una cuenta</option>
+              <option *ngFor="let cuenta of cuentas" [value]="cuenta.id">{{cuenta.nombre}}</option>
+            </select>
+          </div>
+          <div class="col-md-8">
+            <label class="form-label">Descripción</label>
+            <input type="text" class="form-control" 
+                   [(ngModel)]="nuevaTransaccion.descripcion" 
+                   name="descripcion" required>
+          </div>
+        </div>
+        
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Débito</label>
+            <input type="number" class="form-control" 
+                   [(ngModel)]="nuevaTransaccion.debito" 
+                   name="debito" min="0" step="0.01">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Crédito</label>
+            <input type="number" class="form-control" 
+                   [(ngModel)]="nuevaTransaccion.credito" 
+                   name="credito" min="0" step="0.01">
+          </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Registrar</button>
+      </form>
+    </div>
+  </div>
+</div>
+ 
+<div>
+  <div class="card mb-4" *ngFor="let resumen of resumenes">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">{{resumen.cuenta.nombre}}</h5>
+      <div>
+        <span class="badge" [ngClass]="{
+          'bg-success': resumen.cuenta.saldo > 0,
+          'bg-danger': resumen.cuenta.saldo < 0,
+          'bg-secondary': resumen.cuenta.saldo === 0
+        }">
+          Saldo: {{resumen.cuenta.saldo | currency}}
+        </span>
+        <button class="btn btn-sm btn-outline-danger ms-2" 
+                (click)="eliminarCuenta(resumen.cuenta.id)">
+          <i class="bi bi-trash"></i> eliminar
+        </button>
+      </div>
+    </div>
+    
+    <div class="table-responsive">
+    <!-- Modifica la tabla para incluir botones de acción -->
+<table class="table table-striped mb-0">
+  <thead>
+    <tr>
+      <th>Fecha</th>
+      <th>Descripción</th>
+      <th class="text-end">Debe</th>
+      <th class="text-end">Haber</th>
+      <th class="text-end">Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let trans of resumen.transacciones">
+      <td>{{ trans.fecha | date:'short' }}</td>
+      <td>{{ trans.descripcion }}</td>
+      <td class="text-end">{{ trans.debito | currency }}</td>
+      <td class="text-end">{{ trans.credito | currency }}</td>
+      <td class="text-end">
+        <button class="btn btn-sm btn-outline-danger" 
+                (click)="eliminarTransaccion(trans.id)">
+          <i class="bi bi-trash"></i> Eliminar
+        </button>
+      </td>
+    </tr>
+    
+    <!-- Fila de totales -->
+    <tr class="fw-bold" *ngIf="resumen.transacciones.length > 0">
+      <td colspan="2" class="text-end">Total:</td>
+      <td class="text-end">{{ calcularTotales(resumen).totalDebito | currency }}</td>
+      <td class="text-end">{{ calcularTotales(resumen).totalCredito | currency }}</td>
+      <td class="text-end">
+        
+      </td>
+    </tr>
+    
+    <!-- Fila de saldo -->
+    <tr class="table-active" *ngIf="resumen.transacciones.length > 0">
+      <td colspan="4" class="text-end fw-bold">Saldo:</td>
+      <td class="text-end fw-bold" 
+          [ngClass]="{
+            'text-success': calcularTotales(resumen).saldo > 0,
+            'text-danger': calcularTotales(resumen).saldo < 0
+          }">
+        {{ calcularTotales(resumen).saldo | currency }}
+      </td>
+    </tr>
+    
+    <tr *ngIf="resumen.transacciones.length === 0">
+      <td colspan="5" class="text-center text-muted">No hay transacciones en esta cuenta</td>
+    </tr>
+  </tbody>
+</table>
+    </div>
+  </div>
+</div>
+
+
+  
+</div>
